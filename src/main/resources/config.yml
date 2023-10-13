@@ -1,0 +1,18 @@
+
+
+# should be same as in XReplay config
+target-folder: "Replay"
+
+# if enabled, it will replace the world recorded by xreplay with the current server's default world.
+use-default-world: false
+
+# final path = bucket + / + path + id
+
+bucket: "servers"
+
+path: "xreplay/"
+
+minio:
+  url: "127.0.0.1"
+  accessKey: ""
+  secretKey: ""

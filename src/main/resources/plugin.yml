@@ -1,0 +1,9 @@
+name: XReplayMinio
+version: '${project.version}'
+main: re.imc.xreplayminio.XReplayMinio
+commands:
+  replayminio:
+    aliases:
+      - replayload
+depend:
+  - ReplaySystem
