@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import re.imc.xreplayminio.XReplayMinio;
 
 import java.io.File;
@@ -71,8 +72,13 @@ public class ReplayLoadCommand implements CommandExecutor {
             }
         }).whenCompleteAsync((v, t) -> {
             if (commandSender instanceof Player) {
-                ReplayAPI.playReplayID(strings[0], (Player) commandSender);
-            }
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        ReplayAPI.playReplayID(strings[0], (Player) commandSender);
+                    }
+                }.runTask(XReplayMinio.getInstance());
+                }
         });
 
 
