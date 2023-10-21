@@ -60,13 +60,18 @@ public class ReplayLoadCommand implements CommandExecutor {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (!found) {
-                fileName = XReplayMinio.getInstance().getConfig()
-                        .getString("path") + id + ".zip";
-            }
+
 
             File target = new File(XReplayMinio.getInstance().getConfig()
                     .getString("target-folder"));
+
+            Path filePath = target.toPath().resolve(id);
+            if (!found) {
+                fileName = XReplayMinio.getInstance().getConfig()
+                        .getString("path") + id + ".zip";
+                filePath = target.toPath().resolve(id + ".zip");
+            }
+
 
             if (!target.exists()) {
                 try {
@@ -75,7 +80,6 @@ public class ReplayLoadCommand implements CommandExecutor {
                     throw new RuntimeException(e);
                 }
             }
-            Path filePath = target.toPath().resolve(id);
 
 
             try (InputStream stream = XReplayMinio.getClient().getObject(GetObjectArgs.builder()
