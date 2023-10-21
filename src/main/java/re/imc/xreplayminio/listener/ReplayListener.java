@@ -71,12 +71,21 @@ public class ReplayListener implements Listener {
 
         String id = isFileName ? replayID : replayID + ".XREPLAY.gz";
 
+
+        File file = new File(path, id);
+        if (!file.exists()) {
+            id = isFileName ? replayID : replayID + ".XREPLAY.gz.zip";
+            file = new File(path, id);
+        }
+        if (!file.exists()) {
+            return false;
+        }
+
         String bucketName = XReplayMinio.getInstance().getConfig()
                 .getString("bucket");
 
         String fileName = XReplayMinio.getInstance().getConfig()
                 .getString("path") + id;
-        File file = new File(path, id);
 
         if (!isCompressionCompletion(file)) {
             return false;

@@ -61,12 +61,10 @@ public final class XReplayMinio extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        System.out.println("WHAT");
         File folder = new File(XReplayMinio.getInstance().getConfig()
                 .getString("target-folder"));
         File[] files = folder.listFiles();
 
-        System.out.println(files.length);
         if (files != null && files.length > 0) {
             getLogger().info("Finally Replay");
             while (true) {

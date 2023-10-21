@@ -3,7 +3,9 @@ package re.imc.xreplayminio.command;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import de.musterbukkit.replaysystem.main.ReplayAPI;
+import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
+import io.minio.StatObjectArgs;
 import io.minio.errors.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -37,9 +39,31 @@ public class ReplayLoadCommand implements CommandExecutor {
         cache.put(commandSender, true);
 
 
+
         String id = strings[0] + ".XREPLAY.gz";
 
+
+        String bucketName = XReplayMinio.getInstance().getConfig()
+                .getString("bucket");
+
+
+
+
         CompletableFuture.runAsync(() -> {
+            String fileName = XReplayMinio.getInstance().getConfig()
+                    .getString("path") + id;
+            boolean found = false;
+            try {
+                XReplayMinio.getClient().statObject(StatObjectArgs.builder().bucket(bucketName)
+                        .object(fileName).build());
+                found = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (!found) {
+                fileName = XReplayMinio.getInstance().getConfig()
+                        .getString("path") + id + ".zip";
+            }
 
             File target = new File(XReplayMinio.getInstance().getConfig()
                     .getString("target-folder"));
@@ -52,12 +76,6 @@ public class ReplayLoadCommand implements CommandExecutor {
                 }
             }
             Path filePath = target.toPath().resolve(id);
-
-            String bucketName = XReplayMinio.getInstance().getConfig()
-                    .getString("bucket");
-
-            String fileName = XReplayMinio.getInstance().getConfig()
-                    .getString("path") + id;
 
 
             try (InputStream stream = XReplayMinio.getClient().getObject(GetObjectArgs.builder()
