@@ -5,5 +5,5 @@ commands:
   replayminio:
     aliases:
       - replayload
-depend:
+loadbefore:
   - ReplaySystem

@@ -2,12 +2,14 @@ package re.imc.xreplayminio.listener;
 
 import de.musterbukkit.replaysystem.main.ReplaySaveEvent;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.errors.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import re.imc.xreplayextendapi.spigot.events.ReplayDeleteEvent;
 import re.imc.xreplayminio.XReplayMinio;
 
 import java.io.*;
@@ -41,6 +43,28 @@ public class ReplayListener implements Listener {
                 }
             }
         }.runTaskTimerAsynchronously(XReplayMinio.getInstance(), 20, 20);
+    }
+
+    @EventHandler
+    public void onReplayDelete(ReplayDeleteEvent event) {
+        String id = event.getReplayId() + ".XREPLAY.gz";
+
+        String bucketName = XReplayMinio.getInstance().getConfig()
+                .getString("bucket");
+
+        String fileName = XReplayMinio.getInstance().getConfig()
+                .getString("path") + id;
+        XReplayMinio.getInstance().getLogger().info("deleted " + event.getReplayId());
+        try {
+            XReplayMinio.getClient().removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static boolean uploadFile(String path, String replayID, boolean isFileName) throws InterruptedException {

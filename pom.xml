@@ -88,6 +88,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>re.imc</groupId>
+            <artifactId>XReplayExtendAPI</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/XReplayExtendAPI-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>
+        <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
             <version>8.5.6</version>
