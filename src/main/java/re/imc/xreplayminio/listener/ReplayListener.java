@@ -9,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import re.imc.xreplayextendapi.XReplayExtendAPI;
+import re.imc.xreplayextendapi.data.model.ReplayIndex;
 import re.imc.xreplayextendapi.spigot.events.ReplayDeleteEvent;
 import re.imc.xreplayminio.XReplayMinio;
 
@@ -18,6 +20,9 @@ import java.nio.file.StandardOpenOption;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,8 +46,25 @@ public class ReplayListener implements Listener {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+                try {
+                    ReplayIndex index = XReplayExtendAPI.getInstance().getReplayDataManager()
+                            .getReplayIndexDao()
+                            .queryForId(event.getReplayID());
+                    if (index == null) return;
+                    if (index.chunkLoc().startsWith("Worlds: ")) {
+                        String[] data = index.chunkLoc().substring(8).split(";");
+                        String newData = String.join(";", new HashSet<>(Arrays.asList(data))) + ";";
+                        XReplayExtendAPI.getInstance()
+                                .getReplayDataManager()
+                                .getReplayIndexDao()
+                                .update(index.chunkLoc("Worlds: " + newData));
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        }.runTaskTimerAsynchronously(XReplayMinio.getInstance(), 20, 20);
+        }.runTaskLaterAsynchronously(XReplayMinio.getInstance(), 20);
+
     }
 
     @EventHandler

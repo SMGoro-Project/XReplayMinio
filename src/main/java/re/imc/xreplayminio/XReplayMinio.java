@@ -7,10 +7,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import re.imc.xreplayextendapi.XReplayExtendAPI;
+import re.imc.xreplayextendapi.data.model.ReplayIndex;
+import re.imc.xreplayextendapi.spigot.SpigotPlugin;
+import re.imc.xreplayminio.command.DataFixCommand;
 import re.imc.xreplayminio.command.ReplayLoadCommand;
 import re.imc.xreplayminio.listener.ReplayListener;
 
 import java.io.File;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 public final class XReplayMinio extends JavaPlugin implements Listener {
 
@@ -39,6 +46,7 @@ public final class XReplayMinio extends JavaPlugin implements Listener {
         Bukkit.getPluginCommand("replayload").setExecutor(new ReplayLoadCommand());
         deleteDir(new File(XReplayMinio.getInstance().getConfig()
                 .getString("target-folder")));
+        Bukkit.getPluginCommand("replaydatafix").setExecutor(new DataFixCommand());
     }
 
     public static void deleteDir(File file) {
@@ -61,6 +69,7 @@ public final class XReplayMinio extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+
         File folder = new File(XReplayMinio.getInstance().getConfig()
                 .getString("target-folder"));
         File[] files = folder.listFiles();
@@ -75,6 +84,23 @@ public final class XReplayMinio extends JavaPlugin implements Listener {
                 }
 
                 XReplayMinio.getInstance().getLogger().info("Compressing...");
+            }
+            try {
+                ReplayIndex index = XReplayExtendAPI.getInstance().getReplayDataManager()
+                        .getReplayIndexDao()
+                        .queryForId(files[0].getName().split("\\.")[0]);
+
+                if (index == null) return;
+                if (index.chunkLoc().startsWith("Worlds: ")) {
+                    String[] data = index.chunkLoc().substring(8).split(";");
+                    String newData = String.join(";", new HashSet<>(Arrays.asList(data))) + ";";
+                    XReplayExtendAPI.getInstance()
+                            .getReplayDataManager()
+                            .getReplayIndexDao()
+                            .update(index.chunkLoc("Worlds: " + newData));
+                }
+            } catch (SQLException e) {
+                    throw new RuntimeException(e);
             }
         }
     }

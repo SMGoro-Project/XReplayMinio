@@ -5,5 +5,9 @@ commands:
   replayminio:
     aliases:
       - replayload
+  replaydatafix:
+    permission: replay.data.fix
 loadbefore:
   - ReplaySystem
+depend:
+  - XReplayExtendAPI
