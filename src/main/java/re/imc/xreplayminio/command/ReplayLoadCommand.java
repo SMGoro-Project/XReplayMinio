@@ -47,7 +47,7 @@ public class ReplayLoadCommand implements CommandExecutor {
                 .getString("bucket");
 
 
-
+        XReplayMinio.getInstance().getLogger().info("start get");
 
         CompletableFuture.runAsync(() -> {
             String fileName = XReplayMinio.getInstance().getConfig()
@@ -58,7 +58,6 @@ public class ReplayLoadCommand implements CommandExecutor {
                         .object(fileName).build());
                 found = true;
             } catch (Exception e) {
-                e.printStackTrace();
             }
 
 
@@ -67,6 +66,7 @@ public class ReplayLoadCommand implements CommandExecutor {
 
             Path filePath = target.toPath().resolve(id);
             if (!found) {
+                XReplayMinio.getInstance().getLogger().info("zip");
                 fileName = XReplayMinio.getInstance().getConfig()
                         .getString("path") + id + ".zip";
                 filePath = target.toPath().resolve(id + ".zip");
@@ -93,6 +93,11 @@ public class ReplayLoadCommand implements CommandExecutor {
                 e.printStackTrace();
             }
         }).whenCompleteAsync((v, t) -> {
+            if (t != null) {
+                t.printStackTrace();
+                commandSender.sendMessage("ERROR");
+                return;
+            }
             if (commandSender instanceof Player) {
                 new BukkitRunnable() {
                     @Override
@@ -100,7 +105,7 @@ public class ReplayLoadCommand implements CommandExecutor {
                         ReplayAPI.playReplayID(strings[0], (Player) commandSender);
                     }
                 }.runTask(XReplayMinio.getInstance());
-                }
+            }
         });
 
 

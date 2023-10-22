@@ -157,7 +157,7 @@ public class ReplayListener implements Listener {
 
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent event) {
-        if (event.getMessage().startsWith("/replay load")) {
+        if (event.getMessage().contains("replay load")) {
             event.setMessage(event.getMessage().replace("replay load", "replayload"));
         }
 
